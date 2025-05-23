@@ -10,10 +10,10 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Set up Python
+      - name: Set up Python 3.x
         uses: actions/setup-python@v4
         with:
           python-version: '3.x'
@@ -30,7 +30,7 @@ jobs:
           source venv/bin/activate
           python setup.py py2app
 
-      - name: Upload artifact
+      - name: Upload built .app
         uses: actions/upload-artifact@v3
         with:
           name: macos-app
