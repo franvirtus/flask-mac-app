@@ -8,7 +8,6 @@ on:
 jobs:
   build:
     runs-on: macos-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -31,7 +30,7 @@ jobs:
           python setup.py py2app
 
       - name: Upload built .app
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
         with:
           name: macos-app
           path: dist/*.app
