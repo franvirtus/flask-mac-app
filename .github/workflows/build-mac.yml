@@ -1,4 +1,52 @@
+name: Build & Release macOS app
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write    # dà al GITHUB_TOKEN il permesso di creare la Release
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python 3.x
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          pip install --upgrade pip
+          pip install -r requirements.txt py2app
+
+      - name: Build .app with py2app
+        run: |
+          source venv/bin/activate
+          python setup.py py2app
+
       - name: Zip macOS app
         run: |
           cd dist
           zip -r MyApp.zip *.app
+
+      - name: Publish to GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # autentica la CLI con il GITHUB_TOKEN
+          echo "${GITHUB_TOKEN}" | gh auth login --with-token
+          # crea (o aggiorna) la release ci-macos
+          gh release create ci-macos \
+            --title "macOS build $GITHUB_RUN_NUMBER" \
+            --notes "Built on run $GITHUB_RUN_ID" \
+            dist/MyApp.zip \
+            --prerelease
