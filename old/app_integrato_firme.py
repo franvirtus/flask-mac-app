@@ -1,0 +1,15 @@
+
+from flask import Flask, request, render_template_string
+
+app = Flask(__name__)
+
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    if request.method == 'POST':
+        firma_generale = request.form.get("signature_data_generale", "")
+        firma_scattolini = request.form.get("signature_data_scattolini", "")
+        return f"<h1>Ricevute firme</h1><p>Generale: {bool(firma_generale)}</p><p>Scattolini: {bool(firma_scattolini)}</p><a href='/'>Torna indietro</a>"
+    return render_template_string('\n<!DOCTYPE html>\n<html>\n<head>\n  <meta charset="utf-8">\n  <title>Firma per Specialisti</title>\n  <style>\n    .canvas-container {\n      position: relative;\n      display: inline-block;\n      border: 1px solid #000;\n      width: 300px;\n      height: 100px;\n      margin-right: 30px;\n    }\n    .clear-btn {\n      position: absolute;\n      top: 0;\n      right: 0;\n      color: red;\n      font-size: 18px;\n      background: transparent;\n      border: none;\n      padding: 2px;\n      cursor: pointer;\n    }\n  </style>\n</head>\n<body>\n  <h1>Firma per Specialisti</h1>\n  <form method="post" action="/submit">\n    <label>Firma Generale:</label>\n    <div class="canvas-container">\n      <canvas id="signature-pad-generale" width="300" height="100"></canvas>\n      <button type="button" class="clear-btn" onclick="clearSignature(\'generale\')">X</button>\n    </div>\n\n    <label>Firma Scattolini:</label>\n    <div class="canvas-container">\n      <canvas id="signature-pad-scattolini" width="300" height="100"></canvas>\n      <button type="button" class="clear-btn" onclick="clearSignature(\'scattolini\')">X</button>\n    </div>\n\n    <input type="hidden" id="signature_data_generale" name="signature_data_generale">\n    <input type="hidden" id="signature_data_scattolini" name="signature_data_scattolini">\n    <button type="submit">Invia</button>\n  </form>\n\n  <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>\n  <script>\n    const canvasGenerale = document.getElementById(\'signature-pad-generale\');\n    const canvasScattolini = document.getElementById(\'signature-pad-scattolini\');\n\n    const padGenerale = canvasGenerale ? new SignaturePad(canvasGenerale) : null;\n    const padScattolini = canvasScattolini ? new SignaturePad(canvasScattolini) : null;\n\n    function clearSignature(tipo) {\n      if (tipo === \'generale\' && padGenerale) {\n        padGenerale.clear();\n      } else if (tipo === \'scattolini\' && padScattolini) {\n        padScattolini.clear();\n      }\n    }\n\n    document.querySelector(\'form\').addEventListener(\'submit\', function(e) {\n      if (padGenerale && !padGenerale.isEmpty()) {\n        document.getElementById(\'signature_data_generale\').value = padGenerale.toDataURL();\n      }\n      if (padScattolini && !padScattolini.isEmpty()) {\n        document.getElementById(\'signature_data_scattolini\').value = padScattolini.toDataURL();\n      }\n    });\n  </script>\n</body>\n</html>\n')
+
+if __name__ == '__main__':
+    app.run(debug=True, port=5000)

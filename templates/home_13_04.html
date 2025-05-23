@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <meta charset="UTF-8">
+  <title>Selezione Area - Moduli Privacy</title>
+  <style>
+     body {
+      font-family: Arial, sans-serif;
+      padding: 30px;
+      background-color: #f7f7f7;
+      text-align: center;
+    }
+
+    h1 {
+      margin-top: 10px;
+      margin-bottom: 30px;
+    }
+
+    .logo {
+      max-width: 150px;
+      margin-bottom: 10px;
+    }
+
+    .info-centro {
+      font-size: 16px;
+      margin-bottom: 30px;
+    }
+
+   .button-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  max-width: 900px; /* Limita la larghezza totale */
+  margin: 0 auto; /* Centra il contenitore */
+}
+
+.btn-area {
+  flex: 1 1 200px; /* Ogni bottone occupa minimo 200px e può crescere */
+  max-width: 220px; /* Limita la larghezza massima */
+  padding: 20px 30px;
+  background-color: #28a745;
+  color: white;
+  font-size: 18px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+  text-align: center;
+}
+
+    }
+
+    .btn-area:hover {
+      background-color: #1e7e34;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Logo -->
+  <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo">
+
+  <!-- Info centro -->
+  <div class="info-centro">
+    <strong>Virtus Group s.r.l.</strong><br>
+    Nutrizione e terapia dello sport<br>
+    Via Corfù 71 e via Montello 79 – Brescia<br>
+    Tel. 0304096895 e 3518899843<br>
+    Email: virtusgroup2023@gmail.com
+  </div>
+
+  <h1>Seleziona un'area</h1>
+
+<div class="button-container">
+  <a href="{{ url_for('area_page', area='nutrizione') }}" class="btn-area">🍽️ Nutrizione</a>
+  <a href="{{ url_for('area_page', area='osteopatia') }}" class="btn-area">👐 Osteopatia</a>
+  <a href="{{ url_for('area_page', area='osteopatia_pediatrica') }}" class="btn-area">👐 Osteopatia Pediatrica</a>
+  <a href="{{ url_for('area_page', area='fisioterapia') }}" class="btn-area">🏃‍♂️ Fisioterapia</a>
+  <a href="{{ url_for('area_page', area='massoterapia') }}" class="btn-area">💆‍♀️ Massoterapia</a>
+  <a href="{{ url_for('area_page', area='chinesiologia') }}" class="btn-area">🏋️‍♂️ Chinesiologia</a>
+  <a href="{{ url_for('area_page', area='ortottica') }}" class="btn-area">👁️ Ortottica</a>
+  <a href="{{ url_for('area_page', area='logopedia') }}" class="btn-area">🗣️ Logopedia</a>
+  <a href="{{ url_for('area_page', area='ostetricia') }}" class="btn-area">🤰 Ostetricia</a>
+</div>
+
+
+</a>
+
+</a>
+
+	
+
+  </button>
+</a>
+
+
+  </button>
+</a>
+
+	
+  </div>
+
+</body>
+</html>

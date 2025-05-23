@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Specialisti {{ area }}</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      padding: 30px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 26px;
+      margin-bottom: 20px;
+    }
+
+    .btn-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    .btn {
+      background-color: #007BFF;
+      color: white;
+      padding: 15px 25px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+     <h1>Seleziona il tuo specialista in {{ area }} </h1>
+
+  <div class="btn-container">
+    {% for id, specialist in specialists.items() %}
+      <a href="{{ url_for('show_form', specialist_id=id) }}" class="btn">{{ specialist.nome }}</a>
+    {% endfor %}
+  </div>
+
+  <p style="margin-top: 40px;">
+    <a href="/" style="text-decoration: none;">🔙 Torna alla homepage</a>
+  </p>
+
+</body>
+</html>

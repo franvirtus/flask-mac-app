@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Modulo Informativa Privacy</title>
+  <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .campo { margin-bottom: 10px; }
+    label { font-weight: bold; }
+    .firma-wrapper { margin-top: 20px; text-align: center; }
+    .signature-pad-container { position: relative; display: inline-block; }
+    canvas { border: 1px solid #000; width: 400px; height: 200px; }
+    .clear-button { position: absolute; top: 5px; right: 5px; background: transparent; color: red; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 14px; font-weight: bold; cursor: pointer; line-height: 20px; text-align: center; }
+    .firma-block { margin-bottom: 20px; }
+    .firma-block label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+  </style>
+</head>
+<body>
+{% if specialist is none %}
+    <div style="text-align: center; margin-top: 100px;">
+        <img src="{{ url_for('static', filename='costruzione.png') }}" alt="Pagina in costruzione" width="300">
+        <p>Lo specialista selezionato non è ancora disponibile.</p>
+        <a href="{{ url_for('home') }}">🔙 Torna alla home</a>
+    </div>
+{% else %}
+
+<h1 style="text-align: center; font-size: 40px; margin-bottom: 20px;">Modulo Informativa Privacy – {{ specialist.nome }}</h1>
+<form method="post" action="{{ url_for('submit_form', specialist_id=specialist_id) }}" onsubmit="salvaFirme()">
+  <!-- Hidden inputs per inviare al server le etichette di firma -->
+   {% for label in specialist.etichette_firme %}
+    <input 
+      type="hidden" 
+      name="firma_label{{ loop.index }}" 
+      value="{{ label }}"
+    >
+  {% endfor %}
+{% if specialist.nome == "Dott.ssa Veronica Lorenzini" %}
+  <div 
+    class="form-group" 
+    style="margin:20px 0 0 240px; /* ← qui regoli orizzontalmente */ 
+           display:inline-block; /* per far convivere select+input sulla stessa riga */"
+  >
+    <label for="salutation" style="margin-right:5px;">
+      Gentile
+    </label>
+    <select id="salutation" name="salutation" required>
+      <option value="Sig.">Signore</option>
+      <option value="Sig.ra">Signora</option>
+    </select>
+
+    <input 
+      type="text" 
+      id="full_name" 
+      name="full_name" 
+      placeholder="Nome e Cognome" 
+      required
+      style="margin-left:10px; border-bottom:1px solid #000; width:200px;"
+    />
+  </div>
+{% endif %} 
+{% if specialist.nome not in ["Dott.ssa Chiara Morelli", "Dott.ssa Scattolini", "Dott.ssa Serioli"] %}
+
+  <div style="max-width:1000px; margin:0 auto 40px; font-size:16px; line-height:1.6; text-align:justify;">
+    {{ specialist.testo_informativa | safe }}
+  </div>
+{% endif %}
+
+{% if specialist.nome == "Dott. Luca Taesi" %}
+    <div style="margin-top: 30px; text-align: center;">
+      <div style="display: inline-block; text-align: left;">
+          <label>Luogo</label>
+          <input type="text" name="firma_luogo" style="width: 200px;" required>
+          <label style="margin-left: 20px;">Data</label>
+          <input type="date" name="firma_data" style="width: 160px;" required>
+      </div>
+    </div>
+    <div class="firma-wrapper" style="margin-top: 20px;">
+      <div class="firma-block">
+        <p>Firma</p>
+        <div class="signature-pad-container">
+          <canvas id="firma1"></canvas>
+          <input type="hidden" id="input_firma1" name="firma1">
+          <button type="button" class="clear-button" onclick="clearPad(1)">X</button>
+        </div>
+      </div>
+    </div>
+
+    {% elif specialist.nome == "Dott.ssa Chiara Morelli" %}
+    
+    <div style="margin-bottom: 30px;">
+      <label>Io sottoscritto: <input type="text" name="genitore_nome" required></label>
+      <label>Codice Fiscale: <input type="text" name="genitore_cf" required></label>
+      <label>nato a: <input type="text" name="genitore_luogo_nascita" required></label>
+      <label>il: <input type="date" name="genitore_data_nascita" required></label>
+      <label>Residente in: <input type="text" name="genitore_indirizzo" required></label>
+      <label>CAP: <input type="text" name="genitore_cap" style="width: 80px;"></label><br>
+      <label>Tel: <input type="text" name="genitore_tel"></label>
+      <label>Email: <input type="email" name="genitore_email"></label><br>
+    </div>
+    
+    <h3 style="text-align:center; margin-top:20px;">in qualità di genitore – tutore</h3>
+    <div style="margin-bottom: 30px;">
+      <label>Del minore: <input type="text" name="minore_nome" required></label>
+      <label>Codice Fiscale: <input type="text" name="minore_cf" required></label>
+      <label>nato a: <input type="text" name="minore_luogo_nascita" required></label>
+      <label>il: <input type="date" name="minore_data_nascita" required></label>
+      <label>Residente in: <input type="text" name="minore_indirizzo" required></label>
+      <label>CAP: <input type="text" name="minore_cap" style="width: 80px;"></label>
+    </div>
+    
+    <div style="max-width: 1000px; margin: 0 auto 40px auto; font-size: 16px; line-height: 1.6; text-align: justify;">
+      {{ specialist.testo_informativa | safe }}
+      <!-- DICHIARAZIONI -->
+    <div style="margin: 30px 0; font-size: 16px; line-height: 1.8;">
+      <p>Dichiaro di essere stato/a informato/a in modo chiaro e comprensibile in merito agli obiettivi, modalità, durata e possibili benefici delle sedute di chinesiologia, e di aver avuto risposta esauriente a tutte le mie domande.</p>
+      <p>Autorizzo il trattamento dei dati personali del minore sopra indicato, secondo quanto previsto dal GDPR, ai fini dell’espletamento dell’attività professionale da parte della Dott.ssa Chiara Morelli.</p>
+    </div>
+    
+    <!-- CONSENSI -->
+    <div style="margin: 30px 0; font-size: 16px; line-height: 1.8;">
+      <div class="campo">
+        <label><strong>Autorizzo l'invio di materiale informativo via email</strong></label><br>
+        <input type="radio" name="consenso_email" value="Autorizzo" required> Autorizzo
+        <input type="radio" name="consenso_email" value="Non autorizzo" required> Non autorizzo
+      </div>
+      <div class="campo" style="margin-top: 15px;">
+        <label><strong>Autorizzo l'invio di SMS per conferma appuntamenti</strong></label><br>
+        <input type="radio" name="consenso_sms" value="Autorizzo" required> Autorizzo
+        <input type="radio" name="consenso_sms" value="Non autorizzo" required> Non autorizzo
+      </div>
+    </div>
+    
+    <!-- LUOGO, DATA, FIRMA -->
+    <div style="margin-top: 30px; text-align: center;">
+      <div style="display: inline-block; text-align: left;">
+        <label>Luogo</label>
+        <input type="text" name="firma_luogo" style="width: 200px;" required>
+        <label style="margin-left: 20px;">Data</label>
+        <input type="date" name="firma_data" style="width: 160px;" required>
+      </div>
+    </div>
+    
+    <div class="firma-wrapper" style="margin-top: 20px;">
+      <div class="firma-block">
+        <p>Firma del Genitore/Tutore</p>
+        <div class="signature-pad-container">
+          <canvas id="firma1"></canvas>
+          <input type="hidden" id="input_firma1" name="firma1">
+          <button type="button" class="clear-button" onclick="clearPad(1)">X</button>
+        </div>
+      </div>
+    </div>  
+        <div class="firma-wrapper" style="margin-top: 20px;">
+      <div class="firma-block">
+        <p>Firma </p>
+        <div class="signature-pad-container">
+          <canvas id="firma2"></canvas>
+          <input type="hidden" id="input_firma2" name="firma2">
+          <button type="button" class="clear-button" onclick="clearPad(2)">X</button>
+        </div>
+      </div>
+    </div>   
+
+
+    </div>
+{% elif specialist.nome == "Dott.ssa Serioli" %}
+  <!-- 1. Privacy text -->
+  <div style="max-width:800px; margin:0 auto 30px; font-size:16px; line-height:1.6; text-align:justify;">
+    {{ specialist.testo_informativa | safe }}
+  </div>
+
+  <!-- 2. Intestazione Consensi con campi inline -->
+  <h3 style="text-align:center; margin-bottom:10px;">Consensi</h3>
+  <p style="font-size:16px; line-height:1.6;">
+    Io sottoscritto&nbsp;
+    <input
+      type="text"
+      name="tutore"
+      placeholder="Nome e cognome genitore/tutore"
+      style="border:1px solid #000; padding:4px; width:250px;"
+      required
+    >
+    , in qualità di genitore/tutore del paziente&nbsp;
+    <input
+      type="text"
+      name="paziente"
+      placeholder="Nome e cognome paziente"
+      style="border:1px solid #000; padding:4px; width:250px;"
+      required
+    >
+    , vista l’informativa sul trattamento dei dati personali, sopra riportata:
+  </p>
+
+  <!-- 3. I singoli consensi (ricavati dal config) -->
+{% for consenso in specialist.consensi %}
+  <div class="campo" style="margin:15px 0;">
+    <!-- etichetta e radio per “Acconsento” -->
+    <label for="{{ consenso.campo }}_si">
+      <input
+        type="radio"
+        id="{{ consenso.campo }}_si"
+        name="{{ consenso.campo }}"
+        value="Acconsento"
+        required
+      >
+      <strong>Acconsento</strong>
+    </label>
+
+    <!-- etichetta e radio per “Non acconsento” -->
+    <label for="{{ consenso.campo }}_no" style="margin-left:20px;">
+      <input
+        type="radio"
+        id="{{ consenso.campo }}_no"
+        name="{{ consenso.campo }}"
+        value="Non acconsento"
+        required
+      >
+      <strong>Non acconsento</strong>
+    </label>
+
+    <!-- il testo del consenso, fuori dal strong -->
+    <span style="margin-left:12px;">
+      {{ consenso.label }}
+    </span>
+  </div>
+{% endfor %}
+
+  <!-- 4. Luogo / Data / Firme -->
+  <div style="margin-top:30px; text-align:center;">
+    <div style="display:inline-block; text-align:left;">
+      <label>Luogo</label>
+      <input type="text" name="firma_luogo" style="width:200px;" required>
+      <label style="margin-left:20px;">Data</label>
+      <input type="date" name="firma_data" style="width:160px;" required>
+    </div>
+  </div>
+  <div class="firma-wrapper" style="margin-top:20px;">
+    {% for i in range(specialist.firme) %}
+      <div class="firma-block">
+        <p>{{ specialist.etichette_firme[i] }}</p>
+        <div class="signature-pad-container">
+          <canvas id="firma{{ i+1 }}"></canvas>
+          <input type="hidden" id="input_firma{{ i+1 }}" name="firma{{ i+1 }}">
+          <button type="button" class="clear-button" onclick="clearPad({{ i+1 }})">X</button>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+  
+{% elif specialist.nome == "Dott. Gaetano Messineo" %}
+    <div style="margin: 30px 0; font-size: 16px; line-height: 1.6;">
+      <label>Il/La sottoscritto/a</label>
+      <input type="text" name="firma_nome" style="width: 250px;" required>,
+      <label>nato a</label>
+      <input type="text" name="firma_luogo_nascita" style="width: 200px;" required>
+      <label>il</label>
+      <input type="date" name="firma_data_nascita" style="width: 160px;" required>,<br><br>
+      <span>dopo avere letto la superiore informativa, dà il consenso al trattamento dei dati che lo riguardano per le finalità ivi indicate.</span>
+      <br><br>
+      <label>Data</label>
+      <input type="date" name="firma_data" style="width: 160px;" required>
+      </div>
+    <div class="firma-wrapper">
+      <div class="firma-block">
+        <p>Firma paziente</p>
+        <div class="signature-pad-container">
+          <canvas id="firma1"></canvas>
+          <input type="hidden" id="input_firma1" name="firma1">
+          <button type="button" class="clear-button" onclick="clearPad(1)">X</button>
+        </div>
+      </div>
+    </div>
+
+{% elif specialist.nome == "Dott.ssa Scattolini" %}
+
+  <!-- 1. PRIVACY -->
+  <div style="max-width:800px; margin:0 auto 30px; font-size:16px; line-height:1.6; text-align:justify;">
+    {{ specialist.testo_informativa | safe }}
+  </div>
+
+  <!-- 2. CONSENSI E FIRME -->
+  <div style="max-width:800px; margin:0 auto; font-size:16px; line-height:1.6;">
+
+    <!-- Presa visione -->
+<div style="display:flex; justify-content:space-between; margin-bottom:1.5em;">
+  <label>
+    Per presa visione
+    <input type="date" name="presa_visione_data" …>
+  </label>
+  <div>
+    <p><strong>{{ specialist.etichette_firme[0] }}</strong></p>
+    <div class="signature-pad-container">
+      <canvas id="firma1" style="border:1px solid #000; width:400px; height:200px;"></canvas>
+      <input type="hidden" id="input_firma1" name="firma1">
+      <button type="button" class="clear-button" onclick="clearPad(1)">X</button>
+    </div>
+  </div>
+</div>
+
+    <!-- Ruolo -->
+    <p>Il sottoscritto in qualità di:</p>
+    <label style="display:block; margin-bottom:0.5em;">
+      <input type="radio" name="ruolo" value="paziente" required>
+      Paziente
+    </label>
+    <label style="display:block; margin-bottom:0.5em;">
+      <input type="radio" name="ruolo" value="tutore">
+      ADS/tutore/esercente responsabilità genitoriale
+    </label>
+    <label style="display:block; margin-bottom:1.5em;">
+      <input type="radio" name="ruolo" value="persona_riferimento">
+      Persona di riferimento
+      <input type="text" name="persona_riferimento_nome"
+             style="border:none; border-bottom:1px solid #000; width:200px; margin-left:10px;">
+    </label>
+
+    <!-- Autorizzazione -->
+    <div style="margin-bottom:1.5em;">
+      <label style="margin-right:2em;">
+        <input type="radio" name="autorizzazione" value="Autorizza" required> Autorizza
+      </label>
+      <label>
+        <input type="radio" name="autorizzazione" value="Non autorizza"> Non autorizza
+      </label>
+    </div>
+    <p>la Dott.ssa Linda Scattolini a fornire informazioni riguardanti il proprio stato di salute a:</p>
+
+    <!-- Destinatari info -->
+    <p>
+      Medico di Medicina Generale dott./dott.ssa
+      <input type="text" name="medico_generale"
+             style="border:none; border-bottom:1px solid #000; width:300px; margin-left:10px;">
+    </p>
+    <p>
+      Medico specialista dott./dott.ssa
+      <input type="text" name="medico_specialista"
+             style="border:none; border-bottom:1px solid #000; width:300px; margin-left:10px;">
+    </p>
+    <p>
+      Al/alla Sig./Sig.ra
+      <input type="text" name="al_sig"
+             style="border:none; border-bottom:1px solid #000; width:300px; margin-left:10px;">
+    </p>
+
+    <hr style="margin:2em 0;">
+
+    <!-- Seconda sezione ruolo -->
+    
+    <label style="display:block; margin-bottom:0.5em;">
+      <input type="radio" name="ruolo2" value="paziente2" required>
+      Paziente
+    </label>
+    <label style="display:block; margin-bottom:0.5em;">
+      <input type="radio" name="ruolo2" value="tutore2">
+      ADS/tutore/esercente responsabilità genitoriale
+    </label>
+    <label style="display:block; margin-bottom:1.5em;">
+      <input type="radio" name="ruolo2" value="persona_riferimento2">
+      Persona di riferimento
+      <input type="text" name="persona_riferimento2_nome"
+             style="border:none; border-bottom:1px solid #000; width:200px; margin-left:10px;">
+    </label>
+
+    <!-- Data e Firma secondaria -->
+    <div style="display:flex; justify-content:space-between; margin-bottom:1.5em;">
+      <label>
+        Data
+        <input type="date" name="seconda_data"
+               style="border:none; border-bottom:1px solid #000; width:150px; margin-left:10px;" required>
+      </label>
+    <div style="margin-top:30px;">
+  <p><strong>{{ specialist.etichette_firme[1] }}</strong></p>
+  <div class="signature-pad-container">
+    <canvas id="firma2" style="border:1px solid #000; width:400px; height:200px;"></canvas>
+    <input type="hidden" id="input_firma2" name="firma2">
+    <button type="button" class="clear-button" onclick="clearPad(2)">X</button>
+  </div>
+</div>
+</div>
+  
+
+    <p>Acquisizione verbale del consenso per impossibilità fisica alla firma</p>
+
+    <!-- Data e Firma verbale -->
+    <div style="display:flex; justify-content:space-between;">
+      <label>
+        Data
+        <input type="date" name="verbale_data"
+               style="border:none; border-bottom:1px solid #000; width:150px; margin-left:10px;" required>
+      </label>
+    
+    </div>
+    <div style="margin-top:30px;">
+<p><strong>{{ specialist.etichette_firme[2] }}</strong></p>
+  <div class="signature-pad-container">
+    <canvas id="firma3" style="border:1px solid #000; width:400px; height:200px;"></canvas>
+    <input type="hidden" id="input_firma3" name="firma3">
+    <button type="button" class="clear-button" onclick="clearPad(3)">X</button>
+  </div>
+</div>
+</div>
+   
+
+
+  </div>
+
+
+{% elif specialist.nome == "Dott.ssa Veronica Lorenzini" %}
+
+    <div style="margin-bottom: 20px; line-height: 2;">
+      <label>Io sottoscritto/a</label>
+      <input type="text" name="firma_nome" style="width: 200px;" required>,
+      nato/a a <input type="text" name="firma_luogo_nascita" style="width: 200px;" required>
+      il <input type="date" name="firma_data_nascita" style="width: 160px;" required>,
+      residente a <input type="text" name="indirizzo" style="width: 200px;" required>
+    </div>
+    <p style="margin-top: 20px; line-height: 1.6; text-align: justify;">
+      acquisite le summenzionate informazioni fornite dal Titolare del trattamento ai sensi dell’art. 13 del Reg. UE, 
+      e consapevole, in particolare, che il trattamento potrà riguardare dati relativi alla salute, 
+      presto il mio consenso per il trattamento dei suddetti dati per le finalità di cui al punto 1, lett. A) dell'informativa.
+    </p>
+    <div class="firma-wrapper">
+      <div class="firma-block">
+        <label for="firma1"><strong>{{ specialist.etichette_firme[0] }}</label>
+        <div class="signature-pad-container">
+          <canvas id="firma1"></canvas>
+          <input type="hidden" id="input_firma1" name="firma1">
+          <button type="button" class="clear-button" onclick="clearPad(1)">X</button>
+        </div>
+      </div>
+    </div>
+    <p style="margin-top: 30px; font-weight: bold;">Dichiaro inoltre di:</p>
+    <div style="margin-bottom: 10px;">
+      <input type="radio" name="consenso_stat" value="Prestare" required> Prestare
+      <input type="radio" name="consenso_stat" value="Non prestare" required> Non prestare
+      <label>il mio consenso per le finalità di cui al punto 2, lett. C)</label><br>
+    </div>
+    <div style="margin-bottom: 10px;">
+      <input type="radio" name="consenso_info" value="Prestare" required> Prestare
+      <input type="radio" name="consenso_info" value="Non prestare" required> Non prestare
+      <label>il mio consenso per le finalità di cui al punto 2, lett. D)</label><br>
+    </div>
+    <div style="margin-bottom: 10px;">
+      <input type="radio" name="consenso_familiari" value="Prestare" required> Prestare
+      <input type="radio" name="consenso_familiari" value="Non prestare" required> Non prestare
+      <label>il mio consenso alla comunicazione dei miei dati personali e sensibili a familiari e/o a personale medico</label><br>
+    </div>
+    <div class="firma-wrapper">
+      <div class="firma-block">
+        <label for="firma2"><strong>{{ specialist.etichette_firme[1] }}</label>
+        <div class="signature-pad-container">
+          <canvas id="firma2"></canvas>
+          <input type="hidden" id="input_firma2" name="firma2">
+          <button type="button" class="clear-button" onclick="clearPad(2)">X</button>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top: 30px; text-align: center;">
+      <div style="display: inline-block; text-align: left;">
+        <label>Luogo</label>
+        <input type="text" name="firma_luogo" style="width: 200px;" required>
+        <label style="margin-left: 20px;">Data</label>
+        <input type="date" name="firma_data" style="width: 160px;" required>
+      </div>
+    </div>
+
+{% elif specialist.nome == "Dott.ssa Morelli" %}
+    <div style="margin: 30px 0; font-size: 16px; line-height: 1.6;">
+      <label>Luogo:</label>
+      <input type="text" name="firma_luogo" style="width: 200px;" required>
+      <label>Data</label>
+      <input type="date" name="firma_data" style="width: 160px;" required>
+      </div>
+    <div class="firma-wrapper">
+      <div class="firma-block">
+        <p>Firma paziente</p>
+        <div class="signature-pad-container">
+          <canvas id="firma1"></canvas>
+          <input type="hidden" id="input_firma1" name="firma1">
+          <button type="button" class="clear-button" onclick="clearPad(1)">X</button>
+        </div>
+      </div>
+    </div>
+
+
+{% else %}
+    {% if specialist.get("campi_aggiuntivi") %}
+      <div style="margin-bottom: 30px;">
+        {% for campo in specialist.campi_aggiuntivi %}
+          <div class="campo">
+            <label for="{{ campo }}">{{ campo.replace('_', ' ').capitalize() }}</label><br>
+            <input type="text" name="{{ campo }}" id="{{ campo }}" required>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+    {% if specialist.get("consensi") %}
+      <div style="margin-top: 30px;">
+        <h3 style="text-align: center;">Consensi Informati</h3>
+        {% for consenso in specialist["consensi"] %}
+          <div class="campo" style="margin-bottom: 15px;">
+            <label><strong>{{ consenso.label }}</strong></label><br>
+            <input type="radio" name="{{ consenso.campo }}" value="Acconsento" required> Acconsento
+            <input type="radio" name="{{ consenso.campo }}" value="Non acconsento" required> Non acconsento
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+    <div class="firma-wrapper">
+      {% for i in range(specialist.firme) %}
+        <div class="firma-block">
+          <p>Firma {{ i + 1 }}</p>
+          <div class="signature-pad-container">
+            <canvas id="firma{{ i + 1 }}"></canvas>
+            <input type="hidden" id="input_firma{{ i + 1 }}" name="firma{{ i + 1 }}">
+            <button type="button" class="clear-button" onclick="clearPad({{ i + 1 }})">X</button>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+{% endif %}
+
+<div style="margin-top: 30px; text-align: center;">
+  <button type="submit" style="font-size: 20px; padding: 10px 30px;">INVIA</button>
+</div>
+</form>
+
+<script>
+  const pads = [];
+  function initPads() {
+    const count = {{ specialist.firme }};
+    for (let i = 1; i <= count; i++) {
+      const canvas = document.getElementById(`firma${i}`);
+      if (canvas) {
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+        const pad = new SignaturePad(canvas);
+        pads.push({ pad, input: document.getElementById(`input_firma${i}`) });
+      }
+    }
+  }
+
+  function salvaFirme() {
+    for (const p of pads) {
+      if (!p.pad.isEmpty()) {
+        p.input.value = p.pad.toDataURL();
+      }
+    }
+  }
+
+  function clearPad(index) {
+    const p = pads[index - 1];
+    p.pad.clear();
+    p.input.value = '';
+  }
+
+  window.onload = initPads;
+</script>
+
+{% endif %}
+</body>
+</html>

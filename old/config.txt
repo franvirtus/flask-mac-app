@@ -1,0 +1,7 @@
+{
+  "EMAIL_USERNAME": "senseiblogger@gmail.com",
+  "EMAIL_PASSWORD": "midw hacd gnec rzbq",
+  "SHARED_FOLDER": "C:\\Salvataggio privacy",
+  "HOST": "0.0.0.0",
+  "PORT": 5000
+}
