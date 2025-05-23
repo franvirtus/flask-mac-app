@@ -1,2 +1,4 @@
 flask
 py2app
+flask
+fpdf

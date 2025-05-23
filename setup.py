@@ -1,32 +1,29 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
-APP = ["app_06_05.py"]
+# Il tuo script principale
+APP = ["app_06_05.py"]      
+
+# Cartelle di risorse da includere nel bundle
 DATA_FILES = ["templates", "static"]
+
+# Opzioni base per py2app
 OPTIONS = {
-    # mantiene l’argv_emulation per le app GUI
-    "argv_emulation": True,
-    # includi qui tutti i moduli che py2app non rileva automaticamente
-    "includes": [
-        "flask",
-        "jinja2",
-        "pdf_generator_10_05",
-        "specialists_config",
-        "fpdf",         # se usi fpdf
-        # aggiungi altri moduli “strani” che importi nel tuo script
-    ],
-    # se vuoi includere tutti i package sotto un namespace
-    # "packages": ["your_package_name"],
+    "argv_emulation": True
 }
 
+# Carica automaticamente le dipendenze da requirements.txt
+with open("requirements.txt") as f:
+    install_requires = [
+        r.strip() for r in f
+        if r.strip() and not r.startswith("#")
+    ]
+
 setup(
+    name="LaTuaApp",                   # nome del tuo bundle
     app=APP,
     data_files=DATA_FILES,
     options={"py2app": OPTIONS},
     setup_requires=["py2app"],
-    install_requires=[
-        "Flask",
-        "Jinja2",
-        "fpdf",
-        # inserisci qui tutte le tue dipendenze da pip
-    ],
+    install_requires=install_requires, # ecco tutte le librerie
+    packages=find_packages(),          # se hai moduli interni
 )
