@@ -3,3 +3,4 @@ py2app
 flask
 fpdf
 fpdf2
+py2app>=0.29.3
