@@ -1,37 +1,4 @@
-name: Build macOS app
-permissions: write-all
-
-on:
-  push:
-    branches:
-      - main
-
-jobs:
-  build:
-    runs-on: macos-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Set up Python 3.x
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.x'
-
-      - name: Install dependencies
+      - name: Zip macOS app
         run: |
-          python -m venv venv
-          source venv/bin/activate
-          pip install --upgrade pip
-          pip install -r requirements.txt py2app
-
-      - name: Build .app with py2app
-        run: |
-          source venv/bin/activate
-          python setup.py py2app
-
-      - name: Upload built .app
-        uses: actions/upload-artifact@v2
-        with:
-          name: macos-app
-          path: dist/*.app
+          cd dist
+          zip -r MyApp.zip *.app
