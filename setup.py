@@ -1,29 +1,24 @@
-from setuptools import setup, find_packages
+from setuptools import setup
+from pathlib import Path
 
-# Il tuo script principale
-APP = ["app_06_05.py"]      
+HERE = Path(__file__).parent
 
-# Cartelle di risorse da includere nel bundle
-DATA_FILES = ["templates", "static"]
-
-# Opzioni base per py2app
-OPTIONS = {
-    "argv_emulation": True
-}
-
-# Carica automaticamente le dipendenze da requirements.txt
-with open("requirements.txt") as f:
-    install_requires = [
-        r.strip() for r in f
-        if r.strip() and not r.startswith("#")
-    ]
+# leggo le dipendenze riga per riga, ignorando commenti e righe vuote
+requirements = [
+    r.strip() for r in (HERE / "requirements.txt").read_text().splitlines()
+    if r.strip() and not r.startswith("#")
+]
 
 setup(
-    name="LaTuaApp",                   # nome del tuo bundle
-    app=APP,
-    data_files=DATA_FILES,
-    options={"py2app": OPTIONS},
+    app=["app_06_05.py"],          # o il tuo script principale
+    name="VirtusApp",              # nome a piacere
+    version="0.1.0",
+    install_requires=requirements, # <-- qui passo fpdf2 (o fpdf)
     setup_requires=["py2app"],
-    install_requires=install_requires, # ecco tutte le librerie
-    packages=find_packages(),          # se hai moduli interni
+    options={
+        "py2app": {
+            "argv_emulation": True,
+            "includes": ["fpdf"],  # se usi 'fpdf2' qui rimane comunque "fpdf"
+        }
+    },
 )

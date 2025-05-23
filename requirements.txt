@@ -2,3 +2,4 @@ flask
 py2app
 flask
 fpdf
+fpdf2
